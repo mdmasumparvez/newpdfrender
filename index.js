@@ -21,6 +21,10 @@ app.get('/', (req, res) => {
     console.log(req.body);
     res.send("listening post");
 });
+app.get('/test', (req, res) => {
+    console.log(req.body);
+    res.send("Hi how are you?");
+});
 
 app.post('/new', async (req,res)=>{
     //console.log(req.body);
@@ -596,7 +600,10 @@ app.post('/new', async (req,res)=>{
     </body>
     </html>`;
     //res.send(html);
-        const browser = await puppeteer.launch({});
+        const browser = await puppeteer.launch({
+            executablePath: '/usr/bin/chromium-browser', // path in Render
+            args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        });
         const page = await browser.newPage();
         await page.setContent(html, { waitUntil: 'networkidle0' });
         const pdf = await page.pdf({
