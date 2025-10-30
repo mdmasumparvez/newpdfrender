@@ -1,19 +1,14 @@
 const express = require('express');
-const puppeteer = require('puppeteer');
+const pdf = require('html-pdf');
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios'); // Import axios
 const cors = require('cors');
 const { json } = require('stream/consumers');
 const app = express();
-const port = 4000;
+const port = 5000;
 
-const corsOptions ={
-  origin:'*', 
-  credentials:true,            //access-control-allow-credentials:true
-  optionSuccessStatus:200,
-}
-app.use(cors(corsOptions));// Enable CORS
+app.use(cors());// Enable CORS
 app.use(express.static(path.join(__dirname)));
 app.use(express.json()); // Add this to parse JSON bodies
 
@@ -71,35 +66,36 @@ app.post('/new', async (req,res)=>{
                    // console.log("Element inside if: " + Obj[e?.date] ? true : false);
                      rows += `
                             <tr>
-                                <td>${e?.date}</td>
-                                <td>${e?.odhoinSuraNumbers}</td>
-                                <td>${e?.totalQuranAyat}</td>
-                                <td>${e?.totalHadithCount}</td>
-                                <td>${e?.totalIslamicBookPages}</td>
-                                <td>${e?.totalNonIslamicBookPages}</td>
+                                <td>${(+e?.date) ? e?.date : ''}</td>
+                                <td>${(+e?.odhoinSuraNumbers) ? e?.odhoinSuraNumbers : ''}</td>
+                                <td>${(+e?.totalQuranAyat) ? e?.totalQuranAyat : ''}</td>
+                                <td>${(+e?.totalHadithCount) ? e?.totalHadithCount : ''}</td>
+                                <td>${(+e?.totalIslamicBookPages) ? e?.totalIslamicBookPages : ''}</td>
+                                <td>${(+e?.totalNonIslamicBookPages) ? e?.totalNonIslamicBookPages : ''}</td>
                                 <td>${e?.formattedBookReadingTime}</td>
-                                <td>${e?.totalClassTotal}</td>
-                                <td>${e?.totalClassPresent}</td>
-                                <td>${e?.salatJamat}</td>
-                                <td>${e?.salatKaza}</td>
-                                <td>${e?.meetingSodosso}</td>
-                                <td>${e?.meetingSathi}</td>
-                                <td>${e?.meetingKormi}</td>
-                                <td>${e?.meetingSomorthok}</td>
-                                <td>${e?.meetingBondhu}</td>
-                                <td>${e?.meetingMedhabiChatro}</td>
-                                <td>${e?.meetingSuvakankhi}</td>
-                                <td>${e?.meetingMuharoma}</td>
-                                <td>${+e?.sahitto}</td>
-                                <td>${+e?.megazine}</td>
-                                <td>${+e?.stiker}</td>
-                                <td>${+e?.upohar}</td>
+                                <td>${(+e?.totalClassTotal) ? e?.totalClassTotal : ''}</td>
+                                <td>${(+e?.totalClassPresent) ? e?.totalClassPresent : ''}</td>
+                                <td>${(+e?.salatJamat) ? e?.salatJamat : ''}</td>
+                                <td>${(+e?.salatKaza) ? e?.salatKaza : ''}</td>
+                                <td>${(+e?.meetingSodosso) ? e?.meetingSodosso : ''}</td>
+                                <td>${(+e?.meetingSathi) ? e?.meetingSathi : ''}</td>
+                                <td>${(+e?.meetingKormi) ? e?.meetingKormi : ''}</td>
+                                <td>${(+e?.meetingSomorthok) ? e?.meetingSomorthok : ''}</td>
+                                <td>${(+e?.meetingBondhu) ? e?.meetingBondhu : ''}</td>
+                                <td>${(+e?.meetingMedhabiChatro) ? e?.meetingMedhabiChatro : ''}</td>
+                                <td>${(+e?.meetingSuvakankhi) ? e?.meetingSuvakankhi : ''}</td>
+                                <td>${(+e?.meetingMuharoma) ? e?.meetingMuharoma : ''}</td>
+                                <td>${(+e?.sahitto) ? e?.sahitto : ''}</td>
+                                <td>${(+e?.megazine) ? e?.megazine : ''}</td>
+                                <td>${(+e?.stiker) ? e?.stiker : ''}</td>
+                                <td>${(+e?.upohar) ? e?.upohar : ''}</td>
                                 <td>${e?.formattedDawatiKajTime}</td>
-                                <td>${e?.formattedOnnannoKajTime}</td>
+                                <td>${e?.formattedOnnannoKajTime }</td>
                                 <td>${getnewsreading(e?.newsReading)}</td>
                                 <td>${getexercise(e?.exercise)}</td>
                                 <td>${getexercise(e?.selfPurify)}</td>
                             </tr>
+                           
                             `;
                         
                     }
@@ -153,12 +149,15 @@ app.post('/new', async (req,res)=>{
     }
     let total = req.body?.totals || {};
     let Css = `
-         <style>
+             <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400&display=swap');
+        
         body {
             margin: 0;
             padding: 0;
-            font-family: Arial, sans-serif;
+            font-family: "Noto Sans Bengali", Arial, sans-serif;
             background: #eee;
+            font-style: normal !important;
         }
         .body-content {
             background: #eee;
@@ -167,13 +166,18 @@ app.post('/new', async (req,res)=>{
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: Arial, sans-serif;
+            font-family: "Noto Sans Bengali", Arial, sans-serif;
         }
+            * {
+            font-style: normal !important;
+            font-weight: 400 !important;
+        }
+        
         .page {
             background: white;
             width: 210mm;
             height: 297mm;
-            padding: 5mm 5mm;
+            padding: 10mm;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             box-sizing: border-box;
         }
@@ -182,7 +186,7 @@ app.post('/new', async (req,res)=>{
         }
 
         p {
-            line-height: 1.6;
+            line-height: 1.2;
         }
         @media print {
             body {
@@ -196,7 +200,7 @@ app.post('/new', async (req,res)=>{
         }
         @page {
             size: A4;
-            margin: 0mm 5mm;
+            margin: 10mm;
         }
         .report-table {
             width: 100%;
@@ -208,6 +212,7 @@ app.post('/new', async (req,res)=>{
             padding: 4px 1px;
             text-align: left;
             font-size: 10px; /*Adjust font size to fit */
+            line-height: 1.2;
         }
         .report-table td {
             border: 1px solid #000;
@@ -278,6 +283,7 @@ app.post('/new', async (req,res)=>{
             padding: 2px;
             text-align: left;
             font-size: 12px;
+            line-height: 1.2;
         }
         .tc {
             text-align: center;
@@ -308,20 +314,21 @@ app.post('/new', async (req,res)=>{
         .signature-area {
             display: flex;
             justify-content: space-between;
-            margin-top: 20px;
+            margin-top: 10px;
             font-size: 12px;
         }
         .signature-nonbox {
-            text-align: center;
-            width: 200px;
+            text-align: right;
+            width: 120px
             border-top: 1px dotted #000;
-            margin-top: 100px;
+            margin-top: 0px;
+            margin-right: 20px;
             padding-top: 5px;
         }
         .signature-box {
             text-align: left;
             width: 500px;
-            height: 120px;
+            height: 150px;
             border: 1px solid #000;
             border-radius: 2px;
             padding-top: 5px;
@@ -373,34 +380,64 @@ app.post('/new', async (req,res)=>{
                 </thead>
                 <tbody>
                 ${rows}
+                 <tr>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0:00</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0:00</td>
+                                <td>0:00</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                            </tr>
                 <tr style="font-weight: bolder">
                    <td>Total</td>
                    <td>${total?.odhoinQuranDays}</td>
                    <td>${total?.quranOdhoin}</td>
                    <td>${total?.hadithRecite}</td>
                    <td>${total?.islamicBookPages}</td>
-                   <td>${total?.nonIslamicBookPages}</td>
-                   <td>${total?.bookReadingTime}</td>
-                   <td>${total?.classTotal}</td>
-                   <td>${total?.classPresent}</td>
-                   <td>${total?.salatJamat}</td>
+                   <td>${total?.nonIslamicBookPages }</td>
+                   <td>${(total?.bookReadingTime === "") }</td>
+                   <td>${total?.classTotal }</td>
+                   <td>${total?.classPresent }</td>
+                   <td>${total?.salatJamat }</td>
                    <td>${total?.salatKaza}</td>
-                   <td>${total?.meetingSodosso}</td>
-                   <td>${total?.meetingSathi}</td>
-                   <td>${total?.meetingKormi}</td>
-                   <td>${total?.meetingSomorthok}</td>
-                   <td>${total?.meetingBondhu}</td>
+                   <td>${total?.meetingSodosso }</td>
+                   <td>${total?.meetingSathi }</td>
+                   <td>${total?.meetingKormi }</td>
+                   <td>${total?.meetingSomorthok }</td>
+                   <td>${total?.meetingBondhu }</td>
                    <td>${total?.meetingMedhabiChatro}</td>
-                   <td>${total?.meetingSuvakankhi}</td>
-                   <td>${total?.meetingMuharoma}</td>
-                   <td>${total?.sahitto}</td>
-                   <td>${total?.megazine}</td>
-                   <td>${total?.stiker}</td>
-                   <td>${total?.upohar}</td>
+                   <td>${total?.meetingSuvakankhi }</td>
+                   <td>${total?.meetingMuharoma }</td>
+                   <td>${total?.sahitto }</td>
+                   <td>${total?.megazine }</td>
+                   <td>${total?.stiker }</td>
+                   <td>${total?.upohar }</td>
                    <td>${total?.dawatiKajTime}</td>
-                   <td>${total?.onnannoKajTime}</td>
+                   <td>${total?.onnannoKajTime }</td>
                    <td>${total?.newsReadingDays}</td>
-                   <td>${total?.exerciseDays}</td>
+                   <td>${total?.exerciseDays }</td>
                    <td>${total?.selfPurifyDays}</td>
                </tr>
             </tbody>
@@ -592,7 +629,7 @@ app.post('/new', async (req,res)=>{
         <div class="signature-area">
             <div class="signature-box">দায়িত্বশীলের পরামর্শ ও স্বাক্ষর</div>
             <div class="signature-nonbox">স্বাক্ষর ও তারিখ</div>
-        </div>
+            </div>
 
     </div>
            
@@ -600,30 +637,26 @@ app.post('/new', async (req,res)=>{
     </body>
     </html>`;
     //res.send(html);
-        const browser = await puppeteer.launch({
-            
-            args: ['--no-sandbox', '--disable-setuid-sandbox'],
-        });
-        const page = await browser.newPage();
-        await page.setContent(html, { waitUntil: 'networkidle0' });
-        const pdf = await page.pdf({
-            format: 'A4',
-            printBackground: true,
-            margin: {
-                top: '20mm',
-                right: '20mm',
-                bottom: '20mm',
-                left: '20mm'
-            }
-        });
-        await browser.close();
+        const options = {
+        format: 'A4',
+        printBackground: true,
+        margin: {
+            top: '10mm',
+            right: '10mm',
+            bottom: '10mm',
+            left: '10mm'
+        }
+    };
 
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', 'attachment; filename=daily-report.pdf');
-        res.send(pdf);
+    pdf.create(html, options).toStream((err, stream) => {
+            if (err) return res.send(err);
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', 'attachment; filename=daily-report.pdf');
+            stream.pipe(res);
+        });
 
     })
 
-app.listen(5000, () => {
-    console.log('Listening');
+app.listen(port, () => {
+    console.log('Listening on port: http://localhost:' + port);
 });
